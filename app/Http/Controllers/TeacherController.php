@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\Subject;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -38,7 +39,9 @@ class TeacherController extends Controller
         
 
         // Add password to validated data
+       
         $validatedData['password'] = $randomPassword;
+       
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
@@ -109,4 +112,28 @@ class TeacherController extends Controller
         $student->delete();
         return redirect()->route('students.index')->with('success', 'Student deleted successfully!');
     }
+
+
+    //subject
+    public function subject(){
+       return view ('teacher.subject.create');
+    }
+    public function createSubject(Request $request){
+        $validatedData = $request->validate([
+            'subject' => 'required|string|max:255',
+            'chapter' => 'required|string|max:255',
+            'course' => 'nullable|string', // Adjust validation rules as per your needs
+        ]);
+
+        $subject = Subject::create($validatedData);
+
+        // Redirect or respond as needed
+        return redirect()->route('subject.index')->with('success', 'Student updated successfully!');
+    }
+    public function question(){
+        $subjects = Subject::all();
+        $uniqueCourses = $subjects->unique('course')->values()->all();
+        return view ('teacher.subject.question',compact('subjects','uniqueCourses'));
+     }
+
 }

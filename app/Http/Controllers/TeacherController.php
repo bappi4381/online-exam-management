@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Question;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use PDF;
 
 class TeacherController extends Controller
 {
@@ -135,5 +137,55 @@ class TeacherController extends Controller
         $uniqueCourses = $subjects->unique('course')->values()->all();
         return view ('teacher.subject.question',compact('subjects','uniqueCourses'));
      }
+     public function createQuestion(Request $request){
+       
+        $validatedData = $request->validate([
+            'course' => 'nullable|string',
+            'subject' => 'required|string|max:255',
+            'chapter' => 'required|string|max:255',
+            'question' => 'required|string|max:255',
+            'A' => 'required|string|max:255',
+            'B' => 'required|string|max:255',
+            'C' => 'required|string|max:255',
+            'D' => 'required|string|max:255',
+            'answer' => 'required|string|max:255',
+             // Adjust validation rules as per your needs
+        ]);
+        
+        $question = Question::create($validatedData);
+
+        
+        return redirect()->route('subject.question');
+     }
+     public function manageQuestion(Request $request){
+        $questions = Question::paginate(5);
+        return view('teacher.subject.showQusetion',compact('questions'));
+     }
+     public function search(Request $request)
+     {
+        $search = $request->input('search');
+
+        // Fetch paginated questions, filtered by search if applicable
+        if ($search) {
+            $questions = Question::where('question', 'like', '%' . $search . '%')
+            ->orWhere('course', 'like', "%{$search}%")
+            ->orWhere('subject', 'like', "%{$search}%")
+            ->orWhere('chapter', 'like', "%{$search}%")
+            ->paginate(5);
+            $questions->appends(['search' => $search]); // Append search query to pagination links
+        } else {
+            $questions = Question::paginate(10);
+        }
+         return view('teacher.subject.showQusetion', ['questions' => $questions]);
+     }
+    //pdf generate
+    public function generatePDF()
+    {
+        $questions = Question::all(); // Fetch users from database
+
+        $pdf = PDF::loadView('teacher.pdf.pdf', compact('questions'));
+
+        return $pdf->download('Question.pdf');
+    }
 
 }

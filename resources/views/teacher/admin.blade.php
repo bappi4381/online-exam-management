@@ -89,7 +89,8 @@
                         <h6 class="collapse-header">Custom headers:</h6>
                         <a class="collapse-item" href="{{ route('subject.index') }}">Create</a>
                         <a class="collapse-item" href="{{ route('subject.question') }}">Question</a>
-                       
+                        <a class="collapse-item" href="{{ route('question.manage') }}">Manage Question</a>
+                        
                     </div>
                 </div>
             </li>
